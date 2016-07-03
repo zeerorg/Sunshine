@@ -5,6 +5,9 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -27,6 +30,12 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceStates){
+        super.onCreate(savedInstanceStates);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_main, container, false);
@@ -42,10 +51,8 @@ public class MainActivityFragment extends Fragment {
         };
 
         ArrayList<String> dataArray = new ArrayList<String>();
-
         for (String obj : data)
             dataArray.add(obj);
-
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 getActivity(),
                 R.layout.list_item_forecast,
@@ -58,9 +65,25 @@ public class MainActivityFragment extends Fragment {
 
         return v;
     }
+
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        inflater.inflate(R.menu.forecastfragment, menu);
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item){
+        int id = item.getItemId();
+        if(id == R.id.action_refresh) {
+            FetchWeather task = new FetchWeather();
+            task.execute();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
 
 class FetchWeather extends AsyncTask<Void, Void, Void> {
+
+    private final String LOG_TAG = FetchWeather.class.getSimpleName();
 
     protected Void doInBackground(Void... params) {
 
@@ -88,7 +111,7 @@ class FetchWeather extends AsyncTask<Void, Void, Void> {
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
                 // Nothing to do.
-                forecastJsonStr = null;
+                return null;
             }
             reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -102,14 +125,14 @@ class FetchWeather extends AsyncTask<Void, Void, Void> {
 
             if (buffer.length() == 0) {
                 // Stream was empty.  No point in parsing.
-                forecastJsonStr = null;
+                return null;
             }
             forecastJsonStr = buffer.toString();
         } catch (IOException e) {
             Log.e("PlaceholderFragment", "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attemping
             // to parse it.
-            forecastJsonStr = null;
+            return null;
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
