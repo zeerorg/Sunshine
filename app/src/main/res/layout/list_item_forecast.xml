@@ -3,8 +3,10 @@
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:id="@+id/list_item_forecast_textview"
     android:text="Today - Sunny - 88/63"
-    android:textSize="30dp"
-    android:textStyle="bold"
-    android:minHeight="50dp">
+    android:textSize="20dp"
+    android:minHeight="60dp"
+    android:textColor="#020000"
+    android:textIsSelectable="false"
+    android:gravity="center_vertical|center_horizontal">
 
 </TextView>
