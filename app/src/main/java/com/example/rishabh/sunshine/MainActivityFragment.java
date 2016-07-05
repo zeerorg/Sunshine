@@ -1,5 +1,6 @@
 package com.example.rishabh.sunshine;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -74,18 +75,18 @@ public class MainActivityFragment extends Fragment {
         int id = item.getItemId();
         if(id == R.id.action_refresh) {
             FetchWeather task = new FetchWeather();
-            task.execute();
+            task.execute("110085");
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 }
 
-class FetchWeather extends AsyncTask<Void, Void, Void> {
+class FetchWeather extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = FetchWeather.class.getSimpleName();
 
-    protected Void doInBackground(Void... params) {
+    protected Void doInBackground(String... params) {
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -99,7 +100,21 @@ class FetchWeather extends AsyncTask<Void, Void, Void> {
             // Construct the URL for the OpenWeatherMap query
             // Possible parameters are avaiable at OWM's forecast API page, at
             // http://openweathermap.org/API#forecast
-            URL url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=94043&mode=json&units=metric&cnt=7&appid=5280b4b78495d50e61ab8bee22c7a59a");
+            Uri.Builder buildURL = new Uri.Builder();
+            buildURL.scheme("http")
+                    .authority("api.openweathermap.org")
+                    .appendPath("data")
+                    .appendPath("2.5")
+                    .appendPath("forecast")
+                    .appendPath("daily")
+                    .appendQueryParameter("q", params[0])
+                    .appendQueryParameter("mode", "json")
+                    .appendQueryParameter("units", "metric")
+                    .appendQueryParameter("cnt", "7")
+                    .appendQueryParameter("appid", "5280b4b78495d50e61ab8bee22c7a59a");
+            Log.e(LOG_TAG, buildURL.build().toString());
+            URL url = new URL(buildURL.build().toString());
+
 
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
@@ -129,7 +144,7 @@ class FetchWeather extends AsyncTask<Void, Void, Void> {
             }
             forecastJsonStr = buffer.toString();
         } catch (IOException e) {
-            Log.e("PlaceholderFragment", "Error ", e);
+            Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attemping
             // to parse it.
             return null;
@@ -141,10 +156,11 @@ class FetchWeather extends AsyncTask<Void, Void, Void> {
                 try {
                     reader.close();
                 } catch (final IOException e) {
-                    Log.e("PlaceholderFragment", "Error closing stream", e);
+                    Log.e(LOG_TAG, "Error closing stream", e);
                 }
             }
         }
+        Log.e(LOG_TAG, forecastJsonStr);
         return null;
     }
 }
