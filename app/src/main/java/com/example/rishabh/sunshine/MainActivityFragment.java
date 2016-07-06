@@ -1,5 +1,6 @@
 package com.example.rishabh.sunshine;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
@@ -11,8 +12,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,8 +39,10 @@ import java.util.Date;
 public class MainActivityFragment extends Fragment {
 
     public static ArrayAdapter<String> adapter;
+    Context c;
 
     public MainActivityFragment() {
+        c = getContext();
     }
 
     @Override
@@ -48,6 +54,9 @@ public class MainActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+
+        Log.e("On Item Click", "On item click working");
         View v = inflater.inflate(R.layout.fragment_main, container, false);
 
         String[] data = {
@@ -70,8 +79,20 @@ public class MainActivityFragment extends Fragment {
                 dataArray
         );
 
+        Log.e("On Item Click", "On item click working");
         ListView listToShow = (ListView) v.findViewById(R.id.listview_forecast);
         listToShow.setAdapter(adapter);
+        Log.e("On Item Click", "On item click working");
+
+        listToShow.setOnItemClickListener(new OnItemClickListener(){
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.e("On Item Click", "On item click working");
+                String toShow = adapter.getItem(position);
+                Toast.makeText(getActivity(), toShow, Toast.LENGTH_LONG).show();
+            }
+        });
 
         return v;
     }
