@@ -1,6 +1,7 @@
 package com.example.rishabh.sunshine;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
@@ -39,11 +40,7 @@ import java.util.Date;
 public class MainActivityFragment extends Fragment {
 
     public static ArrayAdapter<String> adapter;
-    Context c;
-
-    public MainActivityFragment() {
-        c = getContext();
-    }
+    public static final String TEMP_MSG = "com.example.rishabh.sunshine.WEATHER";
 
     @Override
     public void onCreate(Bundle savedInstanceStates){
@@ -90,7 +87,9 @@ public class MainActivityFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.e("On Item Click", "On item click working");
                 String toShow = adapter.getItem(position);
-                Toast.makeText(getActivity(), toShow, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getActivity(), Detail.class);
+                intent.putExtra(Intent.EXTRA_TEXT, toShow);
+                startActivity(intent);
             }
         });
 
