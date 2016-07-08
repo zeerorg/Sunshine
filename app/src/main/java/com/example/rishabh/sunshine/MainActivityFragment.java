@@ -2,8 +2,10 @@ package com.example.rishabh.sunshine;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -56,24 +58,11 @@ public class MainActivityFragment extends Fragment {
         Log.e("On Item Click", "On item click working");
         View v = inflater.inflate(R.layout.fragment_main, container, false);
 
-        String[] data = {
-                "Today-Sunny-88/63",
-                "Second",
-                "Third",
-                "Fourth",
-                "Fifth",
-                "Sixth",
-                "Seventh"
-        };
-
-        ArrayList<String> dataArray = new ArrayList<String>();
-        for (String obj : data)
-            dataArray.add(obj);
         adapter = new ArrayAdapter<String>(
                 getActivity(),
                 R.layout.list_item_forecast,
                 R.id.list_item_forecast_textview,
-                dataArray
+                new ArrayList<String>()
         );
 
         Log.e("On Item Click", "On item click working");
@@ -103,11 +92,24 @@ public class MainActivityFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();
         if(id == R.id.action_refresh) {
-            FetchWeather task = new FetchWeather();
-            task.execute("110085");
+            updateData();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onStart(){
+        super.onStart();
+        updateData();
+    }
+
+    public void updateData(){
+        FetchWeather task = new FetchWeather();
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = pref.getString("location", "110085");
+        String units = pref.getString("units", "metric");
+        Log.e("FetchWeather", units);
+        task.execute(location, units);
     }
 }
 
@@ -189,7 +191,7 @@ class FetchWeather extends AsyncTask<String, Void, String[]> {
             }
         }
         try {
-            String[] results = getWeatherDataFromJson(forecastJsonStr, 7);
+            String[] results = getWeatherDataFromJson(forecastJsonStr, 7, params[1]);
             return results;
         }
         catch(JSONException e){
@@ -208,11 +210,15 @@ class FetchWeather extends AsyncTask<String, Void, String[]> {
     /**
      * Prepare the weather high/lows for presentation.
      */
-    private String formatHighLows(double high, double low) {
+    private String formatHighLows(double high, double low, String units) {
         // For presentation, assume the user doesn't care about tenths of a degree.
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
 
+        if(units.equals("imperial")){
+            roundedHigh = Math.round((roundedHigh * 1.8)+32);
+            roundedLow = Math.round((roundedHigh * 1.8)+32);
+        }
         String highLowStr = roundedHigh + "/" + roundedLow;
         return highLowStr;
     }
@@ -224,7 +230,7 @@ class FetchWeather extends AsyncTask<String, Void, String[]> {
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
      */
-    private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays)
+    private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays, String units)
             throws JSONException {
 
         // These are the names of the JSON objects that need to be extracted.
@@ -265,7 +271,7 @@ class FetchWeather extends AsyncTask<String, Void, String[]> {
             double high = temperatureObject.getDouble(OWM_MAX);
             double low = temperatureObject.getDouble(OWM_MIN);
 
-            highAndLow = formatHighLows(high, low);
+            highAndLow = formatHighLows(high, low, units);
             resultStrs[i] = day + " - " + description + " - " + highAndLow;
             //System.out.println(resultStrs[0]);
         }
