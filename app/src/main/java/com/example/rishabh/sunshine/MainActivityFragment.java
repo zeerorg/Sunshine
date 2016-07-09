@@ -95,6 +95,15 @@ public class MainActivityFragment extends Fragment {
             updateData();
             return true;
         }
+        else if(id == R.id.view_location){
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String location = pref.getString("location", "110085");
+            Uri gmmIntentUri = Uri.parse("geo:0,0?q="+location);
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+            startActivity(mapIntent);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
