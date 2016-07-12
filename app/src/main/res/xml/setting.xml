@@ -5,14 +5,12 @@
         android:key="location"
         android:defaultValue="110085"
         android:inputType="textPhonetic"
-        android:singleLine="true"
-        />
+        android:singleLine="true" />
 
     <ListPreference
         android:title="Temperature Units"
         android:key="units"
         android:entries="@array/units_entries"
         android:entryValues="@array/units_value"
-        android:defaultValue="Metric"
-        />
+        android:defaultValue="Metric" />
 </PreferenceScreen>
